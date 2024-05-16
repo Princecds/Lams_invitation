@@ -35,6 +35,7 @@ class Complete_form_model extends CI_Model {
         $this->db->insert('compl_other_details' , $Other_details);
         $this->db->insert('compl_regular_details' , $Regular_employee);
         $this->db->insert('compl_prev_details' , $Prev_employee);
+        
         return true;
         
         // $this->db->insert('Family_details' , $Family_details);
