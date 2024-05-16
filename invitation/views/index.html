@@ -1,0 +1,177 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Cibil extends CI_Controller {
+
+    public function __construct()
+    {
+            parent::__construct();
+            $this->load->helper('form');
+            $this->load->library('form_validation');
+            $this->load->model('Cibil_model');
+            $this->load->library('session');
+           
+            
+            
+    }
+
+	public function index()
+	{
+
+      if (!$this->session->userdata('userid')) {
+        // User is not logged in, redirect to login page
+        redirect('users');
+      }
+	    $data['title'] = "Navodit Foundation : MSME Crif Highmark";
+	    $data['cibil_rows'] = $this->Cibil_model->getCibil();
+	    $kyc_results = $this->Cibil_model->getKyc();
+	    $kycs = [];
+	    foreach($kyc_results as $kkey => $kvalue){
+	        $kycs[$kvalue['MASTER_ID']] = $kvalue['MASTER_VAL']; 
+	    }
+	   $data['KYCS'] = $kycs;
+		$this->load->view('template/header',$data);
+		$this->load->view('template/sidebar');
+		$this->load->view('Cibil/list',$data);
+		$this->load->view('template/footer');
+	}
+
+	public function create()
+	{
+	   
+          if (!$this->session->userdata('userid')) {
+            // User is not logged in, redirect to login page
+            redirect('users');
+          }
+	   
+	          $data['title'] = 'Customer Cibil Check';
+            $this->form_validation->set_rules('full_name', 'Full Name', 'required');
+            $this->form_validation->set_rules('dob', 'Date of Birth', 'required');
+            $this->form_validation->set_rules('kyc_type', 'KYC Type', 'required');
+            $this->form_validation->set_rules('kyc_details', 'KYC Details', 'required');
+            $this->form_validation->set_rules('address_type', 'Address Type', 'required');
+            $this->form_validation->set_rules('address', 'Address', 'required');
+            $this->form_validation->set_rules('state', 'State', 'required');
+            $this->form_validation->set_rules('district', 'District', 'required');
+            $this->form_validation->set_rules('pincode', 'Pincode', 'required');
+            $this->form_validation->set_rules('phone_type', 'Phone Type', 'required');
+            $this->form_validation->set_rules('phone_no', 'Phone Number', 'required');
+            $this->form_validation->set_rules('loan_amt', 'Loan Amount', 'required');
+        
+            if ($this->form_validation->run() === FALSE)
+            {
+            $data['title'] = "Navodit Foundation : MSME Crif Highmark";
+            $this->load->view('template/header',$data);
+        		$this->load->view('template/sidebar');
+        		$this->load->view('Cibil/create');
+        		$this->load->view('template/footer');
+        
+            }
+            else
+            {
+                $last_id = $this->Cibil_model->save_cibil();
+                if($last_id){
+                    if($this->cibilapi($last_id)){
+                        redirect('/Cibil/index');
+                    }
+                    // $this->load->view('Cibil/success');
+                }
+                
+                
+            }
+	
+	}
+  public function cibilapi($last_id){
+
+        $full_name = $this->input->post('full_name');
+        $dob = $this->input->post('dob');
+        $kyc_type = $this->input->post('kyc_type');
+        $kyc_details = $this->input->post('kyc_details');
+        $second_kyc_type = $this->input->post('second_kyc_type');
+        $second_kyc_details = $this->input->post('second_kyc_details');
+        $relation_type = $this->input->post('Realation_type');
+        $relation_details = $this->input->post('Relation_details');
+        $second_Realation_type = $this->input->post('second_Realation_type');
+        $second_Relation_details = $this->input->post('second_Relation_details');
+        $address_type = $this->input->post('$address_type');
+        $address = $this->input->post('address');
+        $state = $this->input->post('state');
+        $district = $this->input->post('district');
+        $pincode = $this->input->post('pincode');
+        $phone_type = $this->input->post('phone_type');
+        $phone_no = $this->input->post('phone_no');
+        $loan_amt = $this->input->post('loan_amt');
+        $request_date = date("d-m-Y H:i:s");
+        // $MBR_ID = 'MFI0000263'; //Testing
+        $MBR_ID = 'MFI0000453'; // Live
+	    $curl = curl_init();
+        curl_setopt_array($curl, array(
+        //  CURLOPT_URL => 'https://test.crifhighmark.com/Inquiry/doGet.service/requestResponseSync', //Test
+          CURLOPT_URL => 'https://hub.crifhighmark.com/Inquiry/doGet.service/requestResponseSync', // Live
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => '',
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => 'POST',
+          CURLOPT_HTTPHEADER => array(
+            // 'userId: crif1_cpu_uat@navodit.com', //Test
+            // 'Password: 0DE73BBB3962952CCED90A1717A03A26E316D735', //Test
+            //  'Mbrid: MFI0000263', //Test
+            'userId: crif1_cpu_prd@navodit.com', // Live
+            'Password: 22F0DE8482EF25E3990172ECC05C32F8BAACBCFC', // Live
+            'Mbrid: MFI0000453', // Live
+            'productType: INDV',
+            'productVersion: 1.0',
+            'reqVolType: INDV',
+            'requestXML: <REQUEST-REQUEST-FILE><HEADER-SEGMENT><SUB-MBR-ID>Coracle Capital Consulting & Corporate Services Pvt. Ltd.</SUB-MBR-ID><INQ-DT-TM>'.$request_date.'</INQ-DT-TM><REQ-VOL-TYP>INDV</REQ-VOL-TYP><REQ-ACTN-TYP>SUBMIT</REQ-ACTN-TYP><TEST-FLG>HMTEST</TEST-FLG><AUTH-FLG>Y</AUTH-FLG><AUTH-TITLE>USER</AUTH-TITLE><RES-FRMT>XML/HTML</RES-FRMT><MEMBER-PRE-OVERRIDE>N</MEMBER-PRE-OVERRIDE><RES-FRMT-EMBD>Y</RES-FRMT-EMBD><LOS-NAME>abc</LOS-NAME><LOS-VENDER>cde</LOS-VENDER><LOS-VERSION>1.0</LOS-VERSION><MFI><INDV>true</INDV><SCORE>true</SCORE><GROUP>true</GROUP></MFI><CONSUMER><INDV>true</INDV><SCORE>true</SCORE></CONSUMER><IOI>true</IOI></HEADER-SEGMENT><INQUIRY><APPLICANT-SEGMENT><APPLICANT-NAME><NAME1>'.$full_name.'</NAME1><NAME2></NAME2><NAME3></NAME3></APPLICANT-NAME><DOB><DOB-DATE>'.$dob.'</DOB-DATE><AGE></AGE><AGE-AS-ON></AGE-AS-ON></DOB><IDS><ID><TYPE>'.$kyc_type.'</TYPE><VALUE>'.$kyc_details.'</VALUE></ID><ID><TYPE>'.$second_kyc_type.'</TYPE><VALUE>'.$second_kyc_details.'</VALUE></ID></IDS><RELATIONS><RELATION><TYPE>'.$relation_type.'</TYPE><NAME>'.$relation_details.'</NAME></RELATION><RELATION><TYPE>'.$second_Realation_type.'</TYPE><NAME>'.$second_Relation_details.'</NAME></RELATION></RELATIONS><KEY-PERSON><TYPE></TYPE><NAME></NAME></KEY-PERSON><NOMINEE><TYPE></TYPE><NAME></NAME></NOMINEE><PHONES><PHONE><TELE-NO-TYPE>'.$phone_type.'</TELE-NO-TYPE><TELE-NO>'.$phone_no.'</TELE-NO></PHONE></PHONES></APPLICANT-SEGMENT><ADDRESS-SEGMENT><ADDRESS><TYPE>'.$address_type.'</TYPE><ADDRESS-1>'.$address.'</ADDRESS-1><CITY>'.$district.'</CITY><STATE>'.$state.'</STATE><PIN>'.$pincode.'</PIN></ADDRESS></ADDRESS-SEGMENT><EMAIL></EMAIL><APPLICATION-SEGMENT><INQUIRY-UNIQUE-REF-NO>116f000026EGk2342</INQUIRY-UNIQUE-REF-NO><CREDT-RPT-ID>345</CREDT-RPT-ID><CREDT-REQ-TYP>INDV</CREDT-REQ-TYP><CREDT-RPT-TRN-ID>123</CREDT-RPT-TRN-ID><CREDT-INQ-PURPS-TYP>ACCT-ORIG</CREDT-INQ-PURPS-TYP><CREDT-INQ-PURPS-TYP-DESC>INDIVIDUAL</CREDT-INQ-PURPS-TYP-DESC><CREDIT-INQUIRY-STAGE>PRE-SCREEN</CREDIT-INQUIRY-STAGE><CREDT-RPT-TRN-DT-TM>'.$request_date.'</CREDT-RPT-TRN-DT-TM><MBR-ID>'.$MBR_ID.'</MBR-ID><KENDRA-ID>1234</KENDRA-ID><BRANCH-ID>3008</BRANCH-ID><LOS-APP-ID>b0Yf0000003fL7xEA456</LOS-APP-ID><LOAN-AMOUNT>'.$loan_amt.'</LOAN-AMOUNT></APPLICATION-SEGMENT></INQUIRY></REQUEST-REQUEST-FILE>',
+            'Content-Type: application/xml',
+            'Cache-Control: no-cache'
+          ),
+        ));
+        
+        
+        // $response = curl_exec($curl);
+        // curl_close($curl);
+        // $responseArray = (array)((array) simplexml_load_string($response))['INDV-REPORTS'];
+        // $reports = (array)((array)$responseArray['INDV-REPORT'])['PRINTABLE-REPORT'];
+        // $file_name = $reports['FILE-NAME'];
+        // $file_content = $reports['CONTENT'];
+
+        $response = curl_exec($curl);
+        curl_close($curl);
+        
+        $responseArray = (array) simplexml_load_string($response);
+        
+        if(isset($responseArray['INDV-REPORTS'])) {
+            $responseReports = (array) $responseArray['INDV-REPORTS'];
+        
+            if(isset($responseReports['INDV-REPORT'])) {
+                $reports = (array) $responseReports['INDV-REPORT'];
+        
+                if(isset($reports['PRINTABLE-REPORT'])) {
+                    $printableReport = (array) $reports['PRINTABLE-REPORT'];
+                    $file_name = isset($printableReport['FILE-NAME']) ? $printableReport['FILE-NAME'] : null;
+                    $file_content = isset($printableReport['CONTENT']) ? $printableReport['CONTENT'] : null;
+        
+                    // Further processing with $file_name and $file_content
+                } else {
+                    // Handle the case when 'PRINTABLE-REPORT' key is not present
+                }
+            } else {
+                // Handle the case when 'INDV-REPORT' key is not present
+            }
+        } else {
+            // Handle the case when 'INDV-REPORTS' key is not present
+        }
+        $this->db->set('CIBIL_STATUS', 1);
+        $this->db->set('FILE_NAME', $file_name);
+        $this->db->set('FILE_CONTENT', $file_content);
+        $this->db->where('ID', $last_id);
+        $this->db->update('cibil'); 
+        if(file_put_contents("assets/crif_response/" . $file_name, $file_content)){
+            return true;
+        }
+	}
+}
