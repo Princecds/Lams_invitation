@@ -40,6 +40,7 @@ class New_user_model extends CI_Model {
         $full_name = $postData['full_name'];
         $email_id = $postData['email_id'];
         $phone_no = $postData['phone_no'];
+        // $cc = $postData[''];
         $created_date = date('Y-m-d H:i:s'); 
         $rand = rand(10,1000);
         $url_token = date('YmdHis'); 
@@ -48,7 +49,7 @@ class New_user_model extends CI_Model {
             'FULL_NAME' => $full_name,
             'EMAIL_ID' => $email_id,
             'PHONE_NO' => $phone_no,
-            'IS_FRESHER' => $is_fresher,
+            // 'IS_FRESHER' => $is_fresher,
             'USER_STATUS' => 1,
             'CREATED_BY' => 'SU',
             'CREATED_ON' => $created_date,
@@ -56,37 +57,38 @@ class New_user_model extends CI_Model {
         
     //    pr($data);die;
         
-        // $temp_url['email_templates']='https://hrms.kindasolutions.com/invitation.php/new_user/webform/token/'.$rand."/".$url_token;
-        $temp_ur='https://hrms.kindasolutions.com/invitation.php/new_user/webform/token/'.$rand."/".$url_token;
-        // pr($temp_ur);die;
-        $email_temp = $this->load->view('new_user/email_templates',$temp_url,true);
+    $temp_url['email_templates_url']='https://hrms.kindasolutions.com/invitation.php/new_user/webform/token/'.$rand."/".$url_token;
+    // $temp_ur='https://hrms.kindasolutions.com/invitation.php/new_user/webform/token/'.$rand."/".$url_token;
+    // $this->db->insert('new_user', $data);
+    // pr($temp_ur);die;
+    $email_temp = $this->load->view('new_user/email_templates',$temp_url,true);
     //sending mail 
-     $this->load->library('email');
-    $config=array(
-        'charset'=>'utf-8',
-        'wordwrap'=>true,
-        'mailtype'=>'html'
-        );
-        $this->email->initialize($config);
+    // $config=array(
+    // 'charset'=>'utf-8',
+    // 'wordwrap'=>true,
+    // 'mailtype'=>'html'
+    // );
+    // $this->email->initialize($config);
      
-      $this->email->from('prince.kumar@navoditfinserv.in', 'Navodit Foundation');
-      $this->email->to($email_id);
-      $this->email->cc('pandeyvus@gmail.com');
-      $this->email->bcc('them@their-example.com');
-      $this->email->subject('subject');
-      $this->email->message($email_temp);
-      $send=$this->email->send();
+    //   $this->email->from('prince.kumar@navoditfinserv.in', 'Navodit Foundation');
+    //   $this->email->to($email_id);
+    //   $this->email->cc('pandeyvus@gmail.com');
+    //   $this->email->bcc('them@their-example.com');
+    //   $this->email->subject('subject');
+    //   $this->email->message($email_temp);
+    //   $send=$this->email->send();
       
-      if($send){
-      $this->session->set_flashdata('success', "email send successfully!");
-       $this->db->insert('new_user', $data);
-      redirect(base_url('invitation.php/New_user/create'));
+    //   if($send){
+    //   $this->session->set_flashdata('success', "email send successfully!");
+    //    $this->db->insert('new_user', $data);
+    //   redirect(base_url('invitation.php/New_user/create'));
     //   echo "succesfully send";
-      }
-      else{
-          echo "404 error found";
-      }
-        
+
+        $this->load->library('email');
+        send_emaiil($email_id,'','subject',$email_temp);
+        $this->db->insert('new_user', $data);
+        return true;
+      
     }
     
     

@@ -13,7 +13,9 @@ class Complete_form extends MY_Controller {
             $this->load->model('Complete_form_model');
             $this->load->library('form_validation');
     }
-    
+    public function slice(){
+        $this->load->view('complete_form/index.php');
+    }
     public function list(){ # for listing all the users   Created By : Rahul Saxena on 28-12-2023
        
         $data['title'] = 'Kinda Master : user';

@@ -45,6 +45,8 @@ class New_user extends MY_Controller {
         {
             $postData = $this->input->post();
             $this->New_user_model->create_user($postData); 
+            $this->session->set_flashdata('success', "email send successfully!");
+            redirect(base_url('invitation.php/New_user/create'));
             // redirect(base_url().'invitation.php/New_user/create');
         }
      
@@ -52,6 +54,8 @@ class New_user extends MY_Controller {
     
     // check url session
     public function webform(){
+        // send_emaiil('prince.kumar@navoditfinserv.in','','subject','test msg');
+        // echo "goof";die;
     date_default_timezone_set("Asia/Calcutta");
     $contr =$this->uri->segment(1);
     $meth = $this->uri->segment(2);
@@ -70,13 +74,9 @@ class New_user extends MY_Controller {
     $this->db->from('new_user');
     $this->db->where($data);
     $query = $this->db->get()->row_array();
-    
-        //    echo $query['created_date'] . '<br>';
+        // echo $query['created_date'] . '<br>';
         // echo date("Y-m-d H:i:s");
-        // print_r($query);
-
-
-
+        // pr($query);die;
     if (!empty($query)) {
                 $createdDate = strtotime($query['CREATED_ON']);
                 $currentDate = time();
@@ -92,9 +92,8 @@ class New_user extends MY_Controller {
         		$this->load->view('template/sidebar');
              	$this->load->view('candidates/user_form/create',$data);
         		$this->load->view('template/footer');
-                    
-
                 }
+
               } else {
                 echo "No data found.";
                   }

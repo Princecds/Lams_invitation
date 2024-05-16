@@ -90,7 +90,7 @@
                                       <tbody>
                                         <tr>
                                           <td style="line-height: 24px; font-size: 16px; border-radius: 6px; font-weight: 700 !important; margin: 0;" align="center" bgcolor="#0d6efd">
-                                            <a href="<?php echo $email_templates;?>">Fill form</a>
+                                            <a href="<?php echo $email_templates_url;?>">Fill form</a>
                                           </td>
                                         </tr>
                                       </tbody>

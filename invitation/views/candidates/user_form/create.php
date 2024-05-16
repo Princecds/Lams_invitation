@@ -78,6 +78,14 @@
                                       autocomplete="off" value="<?php echo set_value('user_address');?>"></textarea>
                                   <?php echo form_error('user_address', '<div class="text-danger">', '</div>'); ?>
                               </div>
+                              <div class="form-group">
+                                  <label for="join_for">Join For</label>
+                                  <input type="text" name="join_for" autocomplete="off"
+                                      class="form-control form-control-sm" id="exampleInputEmail1"
+                                      value="<?php echo set_value('join_for');?>" placeholder="Enter Roll">
+                                  <?php echo form_error('join_for', '<div class="text-danger">', '</div>'); ?>
+                              </div>
+                              
                               <div class="form-check">
                                   <input type="checkbox" class="form-check-input" onclick="myFunction()"
                                       id="exampleCheck1"  name = "radio">

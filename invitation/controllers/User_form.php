@@ -58,9 +58,6 @@ class User_form extends MY_Controller {
         }
         
     }
-    
-
-    
     public function rename(){ # rename user
         
     }

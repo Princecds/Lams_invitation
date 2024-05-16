@@ -45,6 +45,7 @@ class User_form_model extends CI_Model {
            $is_fresher = $postData['radio'];
            $user_education = $postData['user_education'];
            $user_address = $postData['user_address'];
+           $join_for = $postData['join_for'];
            $user_company_name = $postData['user_company_name']?$postData['user_company_name']:'None';
            $user_join_date = $postData['user_join_date']?$postData['user_join_date']:'None';
            $user_last_date = $postData['user_last_date']?$postData['user_last_date']:'None';
@@ -60,6 +61,7 @@ class User_form_model extends CI_Model {
             'IS_FRESHER' => $is_fresher,
             'USER_EDUCATION' => $user_education,
             'USER_ADDRESS' => $user_address,
+            'JOIN_FOR' => $join_for,
             'COMPANY_NAME' => $user_company_name,
             'JOIN_DATE' => $user_join_date,
             'LAST_DATE' => $user_last_date,
